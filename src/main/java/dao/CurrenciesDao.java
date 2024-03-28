@@ -2,7 +2,6 @@ package dao;
 
 import dto.RequestCurrencyDto;
 import entity.Currency;
-import exceptions.DataExistsException;
 import exceptions.DatabaseException;
 import util.ConnectionManager;
 
@@ -56,23 +55,15 @@ public class CurrenciesDao implements Dao<Currency, RequestCurrencyDto> {
 
     @Override
     public void add(RequestCurrencyDto request) {
-        if (exists(request)) {
-            throw new DataExistsException("Currency already exists");
-        } else {
-            try (Connection connection = ConnectionManager.getConnection()) {
-                PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_CURRENCY);
-                preparedStatement.setString(1, request.getCode().toUpperCase());
-                preparedStatement.setString(2, request.getName());
-                preparedStatement.setString(3, request.getSign());
-                preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                throw new DatabaseException("Database is unavailable");
-            }
+        try (Connection connection = ConnectionManager.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_CURRENCY);
+            preparedStatement.setString(1, request.getCode().toUpperCase());
+            preparedStatement.setString(2, request.getName());
+            preparedStatement.setString(3, request.getSign());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException("Database is unavailable");
         }
-    }
-
-    private boolean exists(RequestCurrencyDto request) {
-        return findByCode(request).isPresent();
     }
 
     public Optional<Currency> findCurrencyById(Integer id) {
