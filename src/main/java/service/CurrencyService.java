@@ -27,7 +27,7 @@ public class CurrencyService implements Service<ResponseCurrencyDto, RequestCurr
         if (result.isEmpty()) {
             throw new DataNotFoundException("There is no currencies right now");
         } else {
-            return currenciesDao.findAll().stream()
+            return result.stream()
                     .map(Mapper::currencyToResponseCurrencyDto)
                     .collect(toList());
         }

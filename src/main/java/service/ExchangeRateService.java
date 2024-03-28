@@ -7,6 +7,7 @@ import dto.RequestExchangeRateDto;
 import dto.ResponseExchangeRateDto;
 import entity.Currency;
 import entity.ExchangeRate;
+import exceptions.DataExistsException;
 import exceptions.DataNotFoundException;
 import util.Mapper;
 
@@ -24,14 +25,19 @@ public class ExchangeRateService implements Service<ResponseExchangeRateDto, Req
     }
 
     @Override
-    public List<ResponseExchangeRateDto> findAll() { //done
-        return exchangeRateDao.findAll().stream()
-                .map(this::buildExchangeRateDto)
-                .collect(toList());
+    public List<ResponseExchangeRateDto> findAll() {
+        List<ExchangeRate> result = exchangeRateDao.findAll();
+        if (result.isEmpty()) {
+            throw new DataNotFoundException("There is no exchange rates right now");
+        } else {
+            return result.stream()
+                    .map(this::buildExchangeRateDto)
+                    .collect(toList());
+        }
     }
 
     @Override
-    public ResponseExchangeRateDto findByCode(RequestExchangeRateDto request) { //done
+    public ResponseExchangeRateDto findByCode(RequestExchangeRateDto request) {
         Optional<ExchangeRate> exchangeRate = exchangeRateDao.findByCode(request);
         if (exchangeRate.isEmpty()) {
             throw new DataNotFoundException("Exchange rate not found");
@@ -41,24 +47,26 @@ public class ExchangeRateService implements Service<ResponseExchangeRateDto, Req
     }
 
     @Override
-    public void add(RequestExchangeRateDto request) { //done
+    public void add(RequestExchangeRateDto request) {
         RequestCurrencyDto base = new RequestCurrencyDto();
         RequestCurrencyDto target = new RequestCurrencyDto();
         base.setCode(request.getBaseCurrency());
         target.setCode(request.getTargetCurrency());
-        Optional<Currency> baseCurrency = currenciesDao.findByCode(base);
-        Optional<Currency> targetCurrency = currenciesDao.findByCode(target);
-        if (baseCurrency.isEmpty() || targetCurrency.isEmpty()) {
+        if (currenciesDao.findByCode(base).isEmpty() || currenciesDao.findByCode(target).isEmpty()) {
             throw new DataNotFoundException("Currency with this code was not found");
+        } else if (exchangeRateDao.findByCode(request).isPresent()) {
+            throw new DataExistsException("Exchange rate already exists");
         } else {
-            request.setBaseCurrency(String.valueOf(baseCurrency.get().getCode()));
-            request.setTargetCurrency(String.valueOf(targetCurrency.get().getCode()));
             exchangeRateDao.add(request);
         }
     }
 
-    public void update(RequestExchangeRateDto request) { //done
-        exchangeRateDao.update(request);
+    public void update(RequestExchangeRateDto request) {
+        if (exchangeRateDao.findByCode(request).isEmpty()) {
+            throw new DataNotFoundException("Exchange rate not found");
+        } else {
+            exchangeRateDao.update(request);
+        }
     }
 
     private ResponseExchangeRateDto buildExchangeRateDto(ExchangeRate exchangeRate) {
