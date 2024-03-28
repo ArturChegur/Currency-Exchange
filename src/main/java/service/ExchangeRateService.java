@@ -2,9 +2,7 @@ package service;
 
 import dao.CurrenciesDao;
 import dao.ExchangeRatesDao;
-import dto.RequestCurrencyDto;
-import dto.RequestExchangeRateDto;
-import dto.ResponseExchangeRateDto;
+import dto.*;
 import entity.Currency;
 import entity.ExchangeRate;
 import exceptions.DataExistsException;
@@ -84,5 +82,9 @@ public class ExchangeRateService implements Service<ResponseExchangeRateDto, Req
 
     public static ExchangeRateService getInstance() {
         return INSTANCE;
+    }
+
+    public ResponseExchangeDto exchange(RequestExchangeDto request) {
+
     }
 }
