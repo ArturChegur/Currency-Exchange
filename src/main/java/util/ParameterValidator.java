@@ -1,9 +1,8 @@
 package util;
 
 public final class ParameterValidator {
-    private ParameterValidator(){
+    private ParameterValidator() {
     }
 
-    public static void
-
+    public static void checkCurrency(){}
 }

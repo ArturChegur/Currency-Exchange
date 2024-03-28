@@ -1,32 +1,37 @@
 package util;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public final class ConnectionManager {
-    private static final String URL_KEY = "db.url";
-
-    static {
-        loadDriver();
-    }
-
-    private static void loadDriver() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private static HikariDataSource connectionPool;
 
     private ConnectionManager() {
     }
 
-    public static Connection getConnection() {
-        try {
-            return DriverManager.getConnection(PropertiesUtil.get(URL_KEY));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public static Connection getConnection() throws SQLException {
+        return connectionPool.getConnection();
+    }
+
+    static void closeConnectionPool() {
+        connectionPool.close();
+    }
+
+    static void initPool() throws URISyntaxException {
+        String path = Paths.get(Objects.requireNonNull(ConnectionManager.class
+                        .getClassLoader()
+                        .getResource("database.sqlite")).toURI())
+                .toAbsolutePath().toString();
+        HikariConfig config = new HikariConfig();
+        config.setDriverClassName("org.sqlite.JDBC");
+        config.setJdbcUrl("jdbc:sqlite:" + path);
+        config.setMaximumPoolSize(10);
+        connectionPool = new HikariDataSource(config);
     }
 }
