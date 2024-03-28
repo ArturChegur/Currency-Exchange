@@ -85,6 +85,22 @@ public class ExchangeRateService implements Service<ResponseExchangeRateDto, Req
     }
 
     public ResponseExchangeDto exchange(RequestExchangeDto request) {
+        RequestExchangeRateDto requestDirect = Mapper.exchangeToRequestExchangeRateDto(request, true);
+        Optional<ExchangeRate> directExchangeRate = exchangeRateDao.findByCode(requestDirect);
+        if (directExchangeRate.isPresent()) {
+            //просто добавить пару полей - amount + coverted amount
+        }
+        RequestExchangeRateDto requestReverse = Mapper.exchangeToRequestExchangeRateDto(request, false);
+        Optional<ExchangeRate> reverseExchangeRate = exchangeRateDao.findByCode(requestReverse);
+        if (reverseExchangeRate.isPresent()) {
+            //просто добавить пару полей - amount + coverted amount и перевернуть rate
+        }
+        RequestExchangeRateDto baseByUSD = Mapper.exchangeToRequestExchangeRateDto(request, true);
+        RequestExchangeRateDto targetUSD = Mapper.exchangeToRequestExchangeRateDto(request, true);
+        Optional<ExchangeRate> baseExchangeRate = exchangeRateDao.findByCode();
+        Optional<ExchangeRate> tagetExchangeRate = exchangeRateDao.findByCode();
+        if ()
 
+        return null;
     }
 }
