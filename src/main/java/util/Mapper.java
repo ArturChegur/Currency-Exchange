@@ -1,9 +1,9 @@
 package util;
 
-import dto.RequestExchangeDto;
-import dto.RequestExchangeRateDto;
-import dto.ResponseCurrencyDto;
+import dto.*;
 import entity.Currency;
+
+import java.math.BigDecimal;
 
 public final class Mapper {
     private Mapper() {
@@ -16,7 +16,7 @@ public final class Mapper {
                 currency.getSign());
     }
 
-    public static RequestExchangeRateDto exchangeToRequestExchangeRateDto(RequestExchangeDto request, boolean isDirect){
+    public static RequestExchangeRateDto exchangeToRequestExchangeRateDto(RequestExchangeDto request, boolean isDirect) {
         RequestExchangeRateDto result = new RequestExchangeRateDto();
         if (isDirect) {
             result.setBaseCurrency(request.getBaseCurrency());
@@ -25,6 +25,17 @@ public final class Mapper {
             result.setBaseCurrency(request.getTargetCurrency());
             result.setTargetCurrency(request.getBaseCurrency());
         }
+        return result;
+    }
+
+
+    public static ResponseExchangeDto exchangeToResponseExchangeDto(ResponseCurrencyDto base, ResponseCurrencyDto target, BigDecimal rate, BigDecimal amount) {
+        ResponseExchangeDto result = new ResponseExchangeDto();
+        result.setBaseCurrency(base);
+        result.setTargetCurrency(target);
+        result.setRate(rate);
+        result.setAmount(amount);
+        result.setConvertedAmount(rate.multiply(amount));
         return result;
     }
 }

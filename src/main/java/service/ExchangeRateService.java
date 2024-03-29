@@ -9,6 +9,8 @@ import exceptions.DataExistsException;
 import exceptions.DataNotFoundException;
 import util.Mapper;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,6 +69,37 @@ public class ExchangeRateService implements Service<ResponseExchangeRateDto, Req
         }
     }
 
+    public ResponseExchangeDto exchange(RequestExchangeDto request) {
+        RequestExchangeRateDto requestDirect = Mapper.exchangeToRequestExchangeRateDto(request, true);
+        Optional<ExchangeRate> exchangeRate = exchangeRateDao.findByCode(requestDirect);
+        if (exchangeRate.isPresent()) {
+            ResponseExchangeRateDto response = buildExchangeRateDto(exchangeRate.get());
+            return Mapper.exchangeToResponseExchangeDto(response.getBaseCurrency(), response.getTargetCurrency(), response.getRate(), request.getAmount());
+        }
+        RequestExchangeRateDto requestReverse = Mapper.exchangeToRequestExchangeRateDto(request, false);
+        exchangeRate = exchangeRateDao.findByCode(requestReverse);
+        if (exchangeRate.isPresent()) {
+            ResponseExchangeRateDto response = buildExchangeRateDto(exchangeRate.get());
+            BigDecimal one = new BigDecimal("1");
+            BigDecimal reverseRate = one.divide(response.getRate(), 5, RoundingMode.HALF_UP);
+            return Mapper.exchangeToResponseExchangeDto(response.getTargetCurrency(), response.getBaseCurrency(), reverseRate, request.getAmount());
+        }
+        RequestExchangeRateDto baseUSD = Mapper.exchangeToRequestExchangeRateDto(request, false);
+        RequestExchangeRateDto targetUSD = Mapper.exchangeToRequestExchangeRateDto(request, true);
+        baseUSD.setBaseCurrency("USD");
+        targetUSD.setBaseCurrency("USD");
+        Optional<ExchangeRate> baseExchangeRate = exchangeRateDao.findByCode(baseUSD);
+        Optional<ExchangeRate> targetExchangeRate = exchangeRateDao.findByCode(targetUSD);
+        if (baseExchangeRate.isPresent() && targetExchangeRate.isPresent()) {
+            ResponseExchangeRateDto baseResponseDto = buildExchangeRateDto(baseExchangeRate.get());
+            ResponseExchangeRateDto targetResponseDto = buildExchangeRateDto(targetExchangeRate.get());
+            BigDecimal rate = targetExchangeRate.get().getRate().divide(baseExchangeRate.get().getRate(), 5, RoundingMode.HALF_UP);
+            return Mapper.exchangeToResponseExchangeDto(baseResponseDto.getTargetCurrency(), targetResponseDto.getTargetCurrency(), rate, request.getAmount());
+        } else {
+            throw new DataNotFoundException("Exchange can not be done");
+        }
+    }
+
     private ResponseExchangeRateDto buildExchangeRateDto(ExchangeRate exchangeRate) {
         Optional<Currency> baseCurrency = currenciesDao.findCurrencyById(exchangeRate.getBaseCurrencyId());
         Optional<Currency> targetCurrency = currenciesDao.findCurrencyById(exchangeRate.getTargetCurrencyId());
@@ -82,25 +115,5 @@ public class ExchangeRateService implements Service<ResponseExchangeRateDto, Req
 
     public static ExchangeRateService getInstance() {
         return INSTANCE;
-    }
-
-    public ResponseExchangeDto exchange(RequestExchangeDto request) {
-        RequestExchangeRateDto requestDirect = Mapper.exchangeToRequestExchangeRateDto(request, true);
-        Optional<ExchangeRate> directExchangeRate = exchangeRateDao.findByCode(requestDirect);
-        if (directExchangeRate.isPresent()) {
-            //просто добавить пару полей - amount + coverted amount
-        }
-        RequestExchangeRateDto requestReverse = Mapper.exchangeToRequestExchangeRateDto(request, false);
-        Optional<ExchangeRate> reverseExchangeRate = exchangeRateDao.findByCode(requestReverse);
-        if (reverseExchangeRate.isPresent()) {
-            //просто добавить пару полей - amount + coverted amount и перевернуть rate
-        }
-        RequestExchangeRateDto baseByUSD = Mapper.exchangeToRequestExchangeRateDto(request, true);
-        RequestExchangeRateDto targetUSD = Mapper.exchangeToRequestExchangeRateDto(request, true);
-        Optional<ExchangeRate> baseExchangeRate = exchangeRateDao.findByCode();
-        Optional<ExchangeRate> tagetExchangeRate = exchangeRateDao.findByCode();
-        if ()
-
-        return null;
     }
 }

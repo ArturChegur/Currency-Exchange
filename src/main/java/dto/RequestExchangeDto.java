@@ -1,11 +1,17 @@
 package dto;
 
-public class RequestExchangeDto {
-    private String baseCurrency;
-    private String targetCurrency;
-    private Double amount;
+import java.math.BigDecimal;
+import java.util.Objects;
 
-    public RequestExchangeDto(String baseCurrency, String targetCurrency, Double amount) {
+public class RequestExchangeDto {
+    private final String baseCurrency;
+    private final String targetCurrency;
+    private final BigDecimal amount;
+
+    public RequestExchangeDto(String baseCurrency, String targetCurrency, BigDecimal amount) {
+        this.baseCurrency = baseCurrency;
+        this.targetCurrency = targetCurrency;
+        this.amount = amount;
     }
 
     public String getBaseCurrency() {
@@ -16,7 +22,20 @@ public class RequestExchangeDto {
         return targetCurrency;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RequestExchangeDto that = (RequestExchangeDto) o;
+        return Objects.equals(baseCurrency, that.baseCurrency) && Objects.equals(targetCurrency, that.targetCurrency);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(baseCurrency, targetCurrency);
     }
 }

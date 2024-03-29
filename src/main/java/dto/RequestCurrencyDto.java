@@ -1,5 +1,7 @@
 package dto;
 
+import java.util.Objects;
+
 public class RequestCurrencyDto {
     private String name;
     private String code;
@@ -11,6 +13,18 @@ public class RequestCurrencyDto {
     public RequestCurrencyDto(String name, String code, String sign) {
         this.name = name;
         this.code = code;
+        this.sign = sign;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public void setSign(String sign) {
         this.sign = sign;
     }
 
@@ -26,15 +40,16 @@ public class RequestCurrencyDto {
         return sign;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RequestCurrencyDto that = (RequestCurrencyDto) o;
+        return Objects.equals(code, that.code);
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public void setSign(String sign) {
-        this.sign = sign;
+    @Override
+    public int hashCode() {
+        return Objects.hash(code);
     }
 }

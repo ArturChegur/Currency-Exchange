@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import service.ExchangeRateService;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 
 @WebServlet("/exchange")
@@ -22,7 +23,7 @@ public class ExchangeServlet extends HttpServlet {
         String from = req.getParameter("from");
         String to = req.getParameter("to");
         String amount = req.getParameter("amount");
-        RequestExchangeDto request = new RequestExchangeDto(from, to, Double.valueOf(amount));
+        RequestExchangeDto request = new RequestExchangeDto(from, to, new BigDecimal(amount));
         resp.getWriter().write(mapper.writeValueAsString(exchangeRateService.exchange(request)));
     }
 }
