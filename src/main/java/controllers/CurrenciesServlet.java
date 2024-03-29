@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import service.CurrencyService;
+import util.ParameterValidator;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,6 +30,9 @@ public class CurrenciesServlet extends HttpServlet {
         String name = req.getParameter("name");
         String code = req.getParameter("code");
         String sign = req.getParameter("sign");
+        ParameterValidator.checkCode(code);
+        ParameterValidator.checkName(name);
+        ParameterValidator.checkSign(sign);
         currencyService.add(new RequestCurrencyDto(name, code, sign));
         resp.setStatus(201);
     }

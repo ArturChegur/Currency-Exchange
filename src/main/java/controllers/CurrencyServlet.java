@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import service.CurrencyService;
+import util.ParameterValidator;
 
 import java.io.IOException;
 
@@ -18,7 +19,9 @@ public class CurrencyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String currencyCode = req.getPathInfo().substring(1); //todo validation
+        ParameterValidator.checkPath(req.getPathInfo());
+        String currencyCode = req.getPathInfo().substring(1);
+        ParameterValidator.checkCode(currencyCode);
         RequestCurrencyDto request = new RequestCurrencyDto();
         request.setCode(currencyCode);
         ResponseCurrencyDto response = currencyService.findByCode(request);

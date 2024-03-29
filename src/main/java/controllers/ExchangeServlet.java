@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import service.ExchangeRateService;
+import util.ParameterValidator;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,6 +24,9 @@ public class ExchangeServlet extends HttpServlet {
         String from = req.getParameter("from");
         String to = req.getParameter("to");
         String amount = req.getParameter("amount");
+        ParameterValidator.checkCode(from);
+        ParameterValidator.checkCode(to);
+        ParameterValidator.checkRate(amount);
         RequestExchangeDto request = new RequestExchangeDto(from, to, new BigDecimal(amount));
         resp.getWriter().write(mapper.writeValueAsString(exchangeRateService.exchange(request)));
     }

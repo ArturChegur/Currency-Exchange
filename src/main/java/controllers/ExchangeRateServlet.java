@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import service.ExchangeRateService;
+import util.ParameterValidator;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -28,7 +29,9 @@ public class ExchangeRateServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        ParameterValidator.checkPath(req.getPathInfo());
         String path = req.getPathInfo().substring(1);
+        ParameterValidator.checkCodePair(path);
         RequestExchangeRateDto request = new RequestExchangeRateDto();
         request.setBaseCurrency(path.substring(0, 3));
         request.setTargetCurrency(path.substring(3, 6));
@@ -37,7 +40,10 @@ public class ExchangeRateServlet extends HttpServlet {
 
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {
         String rate = req.getParameter("rate");
+        ParameterValidator.checkPath(req.getPathInfo());
         String path = req.getPathInfo().substring(1);
+        ParameterValidator.checkCodePair(path);
+        ParameterValidator.checkRate(rate);
         RequestExchangeRateDto request = new RequestExchangeRateDto();
         request.setBaseCurrency(path.substring(1, 3));
         request.setBaseCurrency(path.substring(3, 6));
