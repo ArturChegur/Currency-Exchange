@@ -2,6 +2,7 @@ package controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.RequestExchangeRateDto;
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,6 +18,11 @@ import java.math.BigDecimal;
 public class ExchangeRateServlet extends HttpServlet {
     private final ExchangeRateService exchangeRateService = ExchangeRateService.getInstance();
     private final ObjectMapper mapper = new ObjectMapper();
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+    }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

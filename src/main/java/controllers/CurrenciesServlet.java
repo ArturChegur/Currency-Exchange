@@ -3,6 +3,8 @@ package controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.RequestCurrencyDto;
 import dto.ResponseCurrencyDto;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +19,11 @@ import java.util.List;
 public class CurrenciesServlet extends HttpServlet {
     private final CurrencyService currencyService = CurrencyService.getInstance();
     private final ObjectMapper mapper = new ObjectMapper();
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
