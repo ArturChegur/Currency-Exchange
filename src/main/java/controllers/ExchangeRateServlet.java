@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import service.ExchangeRateService;
 import util.ParameterValidator;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -44,16 +45,26 @@ public class ExchangeRateServlet extends HttpServlet {
         resp.getWriter().write(mapper.writeValueAsString(exchangeRateService.findByCode(request)));
     }
 
-    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {
-        String rate = req.getParameter("rate");
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         ParameterValidator.checkPath(req.getPathInfo());
         String path = req.getPathInfo().substring(1);
         ParameterValidator.checkCodePair(path);
+        BufferedReader reader = req.getReader();
+        String rate = null;
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.contains("rate=")) {
+                int index = line.indexOf("rate=");
+                rate = line.substring(index + 5);
+            }
+        }
         ParameterValidator.checkRate(rate);
         RequestExchangeRateDto request = new RequestExchangeRateDto();
-        request.setBaseCurrency(path.substring(1, 3));
-        request.setBaseCurrency(path.substring(3, 6));
+        request.setBaseCurrency(path.substring(0, 3));
+        request.setTargetCurrency(path.substring(3, 6));
         request.setRate(new BigDecimal(rate));
+        ParameterValidator.checkCode(request.getTargetCurrency());
+        ParameterValidator.checkCode(request.getBaseCurrency());
         exchangeRateService.update(request);
     }
 }

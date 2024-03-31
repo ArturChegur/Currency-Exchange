@@ -15,12 +15,10 @@ public class ExchangeRatesDao implements Dao<ExchangeRate, RequestExchangeRateDt
     private static final String FIND_ALL = "SELECT * FROM exchange_rates";
     public static final String ADD_NEW_EXCHANGE_RATE = "INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?);";
     private static final String UPDATE_EXCHANGE_RATE = """
-            UPDATE exchange_rates er
-            JOIN currencies base_curr ON er.base_currency_id = base_curr.id
-            JOIN currencies target_curr ON er.target_currency_id = target_curr.id
-            SET er.rate = ?
-            WHERE base_curr.code = ?
-            AND target_curr.code = ?
+            UPDATE exchange_rates
+            SET rate = ?
+            WHERE base_currency_id IN (SELECT id FROM currencies WHERE code = ?)
+            AND target_currency_id IN (SELECT id FROM currencies WHERE code = ?)
             """;
     private static final String FIND_BY_CODE_PAIR = """
             SELECT er.id, er.base_currency_id, er.target_currency_id, er.rate
@@ -68,8 +66,8 @@ public class ExchangeRatesDao implements Dao<ExchangeRate, RequestExchangeRateDt
 
     @Override
     public void add(RequestExchangeRateDto request) {
-        try (Connection connection = ConnectionManager.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_EXCHANGE_RATE);
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_EXCHANGE_RATE)) {
             preparedStatement.setInt(1, Integer.parseInt(request.getBaseCurrency().toUpperCase()));
             preparedStatement.setInt(2, Integer.parseInt(request.getTargetCurrency().toUpperCase()));
             preparedStatement.setBigDecimal(3, request.getRate());

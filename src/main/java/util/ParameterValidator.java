@@ -22,7 +22,7 @@ public final class ParameterValidator {
     }
 
     public static void checkName(String name) {
-        if (name == null || name.length() < 20) {
+        if (name == null || name.length() > 30) {
             throw new InvalidDataException("Name is incorrect");
         }
     }

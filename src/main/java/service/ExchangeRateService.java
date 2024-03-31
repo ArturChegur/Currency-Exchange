@@ -52,11 +52,15 @@ public class ExchangeRateService implements Service<ResponseExchangeRateDto, Req
         RequestCurrencyDto target = new RequestCurrencyDto();
         base.setCode(request.getBaseCurrency());
         target.setCode(request.getTargetCurrency());
-        if (currenciesDao.findByCode(base).isEmpty() || currenciesDao.findByCode(target).isEmpty()) {
+        Optional<Currency> baseResponse = currenciesDao.findByCode(base);
+        Optional<Currency> targetResponse = currenciesDao.findByCode(target);
+        if (baseResponse.isEmpty() || targetResponse.isEmpty()) {
             throw new DataNotFoundException("Currency with this code was not found");
         } else if (exchangeRateDao.findByCode(request).isPresent()) {
             throw new DataExistsException("Exchange rate already exists");
         } else {
+            request.setBaseCurrency(String.valueOf(baseResponse.get().getId()));
+            request.setTargetCurrency(String.valueOf(targetResponse.get().getId()));
             exchangeRateDao.add(request);
         }
     }
