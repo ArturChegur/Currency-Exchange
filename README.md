@@ -17,18 +17,24 @@ The REST API provides the following endpoints for managing currencies and exchan
 Currencies
 
 GET /currencies: Retrieves a list of all currencies.
+
 GET /currency/{code}: Retrieves information about a specific currency.
+
 POST /currencies: Adds a new currency to the database.
 
 Exchange Rates
 
 GET /exchangeRates: Retrieves a list of all exchange rates.
+
 GET /exchangeRate/{baseCode}{targetCode}: Retrieves information about a specific exchange rate.
+
 POST /exchangeRates: Adds a new exchange rate to the database.
+
 PATCH /exchangeRate/{baseCode}{targetCode}: Updates an existing exchange rate in the database.
 Currency Exchange
 
 GET /exchange?from={baseCode}&to={targetCode}&amount={amount}: Performs a currency conversion calculation.
+
 Setup and Deployment
 
 To deploy the project, follow these steps:
